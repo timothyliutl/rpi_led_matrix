@@ -4,6 +4,9 @@ from spotipy.oauth2 import SpotifyOAuth
 from dotenv import load_dotenv
 import os
 
+#given that spotify does not have a websocket api
+#we may want to use discords api instead and display listening that way
+
 load_dotenv()
 
 class Spotipy_App():
