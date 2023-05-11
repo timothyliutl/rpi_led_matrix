@@ -5,6 +5,8 @@ from discord.ext import tasks
 from rgbmatrix import RGBMatrix, RGBMatrixOptions
 from PIL import Image, ImageDraw, ImageFont
 from matrix_class import MatrixClass
+import time
+import threading
 
 
 load_dotenv()
@@ -16,6 +18,13 @@ token = os.getenv('DISCORD_TOKEN')
 user_id = os.getenv('DISCORD_ID')
 led_matrix = MatrixClass()
 
+def update_display():
+    while True:
+        led_matrix.update_display()
+        time.sleep(0.2)
+t1 = threading.Thread(target=update_display)
+t1.setDaemon(True)
+t1.start()
 
 @client.event
 async def on_ready():
@@ -33,7 +42,6 @@ async def on_presence_update(before, after):
                 print(song_name, song_artist)
                 album_cover_url = act.album_cover_url
                 led_matrix.update_song(album_cover_url, str(song_name), str(song_artist))
-
 
 
 client.run(token)
