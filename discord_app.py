@@ -17,11 +17,15 @@ client = discord.Client(intents=intents)
 token = os.getenv('DISCORD_TOKEN')
 user_id = os.getenv('DISCORD_ID')
 led_matrix = MatrixClass()
+lock = threading.Lock()
 
 def update_display():
     while True:
-        led_matrix.update_display()
-        time.sleep(0.2)
+        with lock:
+            led_matrix.update_display()
+            time.sleep(0.2)
+
+
 t1 = threading.Thread(target=update_display)
 t1.setDaemon(True)
 t1.start()
@@ -41,7 +45,9 @@ async def on_presence_update(before, after):
                 song_artist =act.artists[0]
                 print(song_name, song_artist)
                 album_cover_url = act.album_cover_url
+                lock.acquire()
                 led_matrix.update_song(album_cover_url, str(song_name), str(song_artist))
-
-
+                lock.release()
 client.run(token)
+
+

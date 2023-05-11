@@ -42,6 +42,8 @@ class MatrixClass():
         self.album_img_url = album_img_url
         self.artist_name = artist_name
         self.song_name = song_name
+        self.animation_count_artist = 0
+        self.animation_count_song = 0
 
     def update_display(self):
 
@@ -60,7 +62,7 @@ class MatrixClass():
                 draw.text((0,0), self.song_name,fill='white', font=self.font)
                 
             if len(self.artist_name)>7:
-                draw.text((-self.animation_count_artist,9), self.artist_name + spacer + self.song_name,fill='white', font = self.font)
+                draw.text((-self.animation_count_artist,9), self.artist_name + spacer + self.artist_name,fill='white', font = self.font)
             else:
                 draw.text((0,9), self.artist_name,fill='white', font = self.font)
 
