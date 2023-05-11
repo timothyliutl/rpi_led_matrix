@@ -25,7 +25,7 @@ class MatrixClass():
         self.options.drop_privileges = False
         self.options.gpio_slowdown=4
         self.matrix = RGBMatrix(options = self.options)
-        self.font = ImageFont.truetype('fonts/tiny.otf', size=6)
+        self.font = ImageFont.truetype('fonts/tiny.otf', size=5)
 
         self.album_img_url = None
         self.song_name = None
@@ -72,7 +72,7 @@ class MatrixClass():
             else:
                 self.animation_count_artist += 1
 
-            if (self.animation_count_song) == self.font.getsize(self.song_name + spacer)[0]-1:
+            if (self.animation_count_song) == self.font.getsize(self.song_name + spacer)[0]:
                 self.animation_count_song = 0
             else:
                 self.animation_count_song += 1
