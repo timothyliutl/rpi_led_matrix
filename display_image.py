@@ -10,7 +10,6 @@ from io import BytesIO
 
 file_path = './images/seraphine.png'
 
-image = Image.open(file_path)
 
 options = RGBMatrixOptions()
 options.rows = 32
@@ -22,11 +21,11 @@ options.pwm_lsb_nanoseconds = 80
 options.hardware_mapping = 'adafruit-hat'
 options.limit_refresh_rate_hz = 150
 options.drop_privileges = False
+options.gpio_slowdown=4
 
 
 matrix = RGBMatrix(options = options)
 
-image.thumbnail((matrix.width, matrix.height), Image.ANTIALIAS)
 spotify = spotify_app.Spotipy_App()
 
 
