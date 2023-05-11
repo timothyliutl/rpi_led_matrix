@@ -32,7 +32,7 @@ async def on_presence_update(before, after):
                 song_artist =act.artists[0]
                 print(song_name, song_artist)
                 album_cover_url = act.album_cover_url
-                led_matrix.update_song(album_cover_url, song_name, song_artist)
+                led_matrix.update_song(album_cover_url, str(song_name), str(song_artist))
 
 
 

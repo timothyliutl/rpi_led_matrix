@@ -23,27 +23,26 @@ class MatrixClass():
         self.options.drop_privileges = False
         self.options.gpio_slowdown=4
         self.matrix = RGBMatrix(options = self.options)
-        self.frame = Image.new("RGB", (self.matrix.width, self.matrix.height), (0,0,0))
-        self.draw = ImageDraw.Draw(self.frame)
-        self.font = ImageFont.load_default()
+        self.font = ImageFont.truetype('fonts/tiny.otf', size=6)
         
 
 
 
 
     def update_song(self,album_img_url, song_name, artist_name):
-        self.frame = Image.new("RGB", (self.matrix.width, self.matrix.height), (0,0,0))
+        frame = Image.new("RGB", (self.matrix.width, self.matrix.height), (0,0,0))
         img = self.update_image(album_img_url)
-        self.frame.paste(img)
-        self.draw.text((0,0), song_name,fill='white', font=self.font)
-        self.draw.text((34,9), artist_name, )
-        self.matrix.SetImage(self.frame)
+        draw = ImageDraw.Draw(frame)
+        draw.text((34,0), song_name,fill='white', font=self.font)
+        draw.text((34,9), artist_name,fill='white', font = self.font)
+        frame.paste(img)
+        self.matrix.SetImage(frame)
 
 
     def update_image(self,url):
         #helper function
         response = requests.get(url)
         img = Image.open(BytesIO(response.content))
-        img.thumbnail((self.matrix.width, self.matrix.height), Image.ANTIALIAS)
+        img.thumbnail((32, 32), Image.ANTIALIAS)
         img.convert('RGB')
         return img
