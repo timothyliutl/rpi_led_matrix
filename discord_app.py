@@ -9,6 +9,7 @@ from PIL import Image, ImageDraw, ImageFont
 from matrix_class import MatrixClass
 import time
 import threading
+from discord.ext import commands
 
 
 load_dotenv()
@@ -22,35 +23,100 @@ server_id = os.getenv('DISCORD_SERVER_ID')
 
 #adding class based structure for discord client
 class DiscordClient(discord.Client):
+    
     def __init__(self, *, intents: Intents, **options: Any) -> None:
         super().__init__(intents=intents, **options)
         self.led_matrix = MatrixClass()
         self.lock = threading.Lock()
+        self.current_activity = None
+        self.bot = commands.Bot(command_prefix="!", intents=intents)
+        self.screens = ['spotify', 'crunchyroll', 'clock']
+        self.active_flag = False
+        self.activity_data = {}
+
         self.t1 = threading.Thread(target=self.update_display)
         self.t1.setDaemon(True)
         self.t1.start()
 
+    #helper functions
     def update_display(self):
         while True:
-            with self.lock:
-                self.led_matrix.update_display()
-                time.sleep(0.2)
+            if self.active_flag:
+                with self.lock:
+                    #spotify screen
+                    self.led_matrix.update_spotify_display() 
+                    time.sleep(0.2)
+    
+    def update_activity_data(self,activities):
+        for act in activities:
+            if isinstance(act, discord.Spotify):
+                song_name = act.title
+                song_artist =act.artists[0]
+                album_cover_url = act.album_cover_url
+                self.activity_data['spotify'] = {'song_name':song_name,
+                                                 'song_artist': song_artist,
+                                                 'album_cover_url': album_cover_url}
+            elif act.name == 'Crunchyroll':
+                self.activity_data['crunchyroll'] = {
+                    "show_name":act.details,
+                    #TODO: figure out how to get anime image url from this
+                }
+                
+                
+    #decorator functions
+    async def on_message(self, message):
+        author = message.author.id
+        message_content = message.content
+
+        if author == int(user_id):
+            if str(message_content).lower() == "activate":
+
+                if self.active_flag:
+                    await message.channel.send("Already Activated")
+                else:
+                    await message.channel.send("Turning On LED Matrix")
+                    self.active_flag = True
+
+            elif str(message_content).lower() == "deactivate":
+                if not self.active_flag:
+                    await message.channel.send("Already deactivated")
+                else:
+                    await message.channel.send("Turning off LED Matrix")
+                    self.active_flag = False
+                    time.sleep(0.2)
+                    self.led_matrix.turn_off_display()
+
+            #yeah i know i could have used case and switch but whatever
+            elif str(message_content).lower() == 'spotify':
+                await message.channel.send("Setting Screen to Spotify")
+                self.current_activity = 'spotify'
+            elif str(message_content).lower() == 'crunchyroll':
+                await message.channel.send("Setting Screen to Crunchyroll")
+                self.current_activity = 'crunchyroll'
+            elif str(message_content).lower() == 'clock':
+                await message.channel.send("Setting Screen to Clock")
+                self.current_activity = 'clock'
+            
 
     async def on_ready(self):
         print("Bot Ready")
 
     async def on_presence_update(self, before, after):
-        if after.activities:
+        for act in after.activities:
+            print(act)
+
+
+        if after.activities and self.active_flag and after.id ==int(user_id):
             activities = after.activities
-            for act in activities:
-                if isinstance(act, discord.Spotify) and after.id ==int(user_id):
-                    song_name = act.title
-                    song_artist =act.artists[0]
-                    print(song_name, song_artist)
-                    album_cover_url = act.album_cover_url
-                    self.lock.acquire()
-                    self.led_matrix.update_song(album_cover_url, str(song_name), str(song_artist))
-                    self.lock.release()
+            self.update_activity_data(activities)
+
+
+        if self.active_flag and self.current_activity == 'spotify' and 'spotify' in self.activity_data.keys():
+            self.lock.acquire()
+            self.led_matrix.update_song(self.activity_data['spotify']['album_cover_url'],
+                                         self.activity_data['spotify']['song_name'], 
+                                         self.activity_data['spotify']['song_artist'])
+            self.lock.release()
     
 class_client = DiscordClient(intents=intents)
 class_client.run(token)

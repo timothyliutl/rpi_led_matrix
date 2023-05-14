@@ -32,9 +32,6 @@ class MatrixClass():
         self.artist_name = None
         self.animation_count_artist = 0
         self.animation_count_song=0
-        
-        process = Process(target=self.update_display)
-        process.start()
 
 
 
@@ -45,7 +42,7 @@ class MatrixClass():
         self.animation_count_artist = 0
         self.animation_count_song = 0
 
-    def update_display(self):
+    def update_spotify_display(self):
 
         if self.album_img_url==None or self.song_name == None or self.artist_name == None:
             pass 
@@ -82,7 +79,9 @@ class MatrixClass():
 
             self.matrix.SetImage(frame)
         
-
+    def turn_off_display(self):
+        blank_frame = Image.new("RGB", (self.matrix.width, self.matrix.height), (0,0,0))
+        self.matrix.SetImage(blank_frame)
 
     def update_image(self,url):
         #helper function
