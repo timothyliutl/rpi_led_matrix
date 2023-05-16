@@ -68,11 +68,15 @@ class MatrixClass():
 
             if (self.animation_count_artist) == self.font.getsize(self.artist_name + spacer)[0]:
                 self.animation_count_artist = 0
+            elif self.animation_count_artist == 0 and abs(self.animation_count_song - self.animation_count_artist) > 2:
+                self.animation_count_artist = 0
             else:
                 self.animation_count_artist += 1
 
             if (self.animation_count_song) == self.font.getsize(self.song_name + spacer)[0]:
                 self.animation_count_song = 0
+            elif self.animation_count_song == 0 and abs(self.animation_count_song - self.animation_count_artist) > 2:
+                self.animation_count_artist = 0
             else:
                 self.animation_count_song += 1
             
