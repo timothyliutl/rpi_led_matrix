@@ -43,9 +43,12 @@ class DiscordClient(discord.Client):
         while True:
             if self.active_flag:
                 with self.lock:
-                    #spotify screen
-                    self.led_matrix.update_spotify_display() 
-                    time.sleep(0.2)
+                    if self.current_activity == 'spotify':
+                        #spotify screen
+                        self.led_matrix.update_spotify_display() 
+                        time.sleep(0.2)
+                    if self.current_activity == 'crunchyroll':
+                        pass
     
     def update_activity_data(self,activities):
         for act in activities:
@@ -89,10 +92,28 @@ class DiscordClient(discord.Client):
             #yeah i know i could have used case and switch but whatever
             elif str(message_content).lower() == 'spotify':
                 await message.channel.send("Setting Screen to Spotify")
+                
+                self.lock.acquire()
+                self.active_flag = not self.active_flag
+                self.led_matrix.splash_screen('spotify')
                 self.current_activity = 'spotify'
+                time.sleep(2)
+                self.active_flag = not self.active_flag
+                self.led_matrix.turn_off_display()
+                self.lock.release()
+
             elif str(message_content).lower() == 'crunchyroll':
                 await message.channel.send("Setting Screen to Crunchyroll")
+
+                self.lock.acquire()
+                self.active_flag = not self.active_flag
                 self.current_activity = 'crunchyroll'
+                self.led_matrix.splash_screen('crunchyroll')
+                time.sleep(2)
+                self.active_flag = not self.active_flag
+                self.led_matrix.turn_off_display()
+                self.lock.release()
+
             elif str(message_content).lower() == 'clock':
                 await message.channel.send("Setting Screen to Clock")
                 self.current_activity = 'clock'

@@ -94,3 +94,27 @@ class MatrixClass():
         img.thumbnail((32, 32), Image.ANTIALIAS)
         img.convert('RGB')
         return img
+    
+    def update_image_path(self,path, size):
+        img = Image.open(path)
+        img.thumbnail((size, size), Image.ANTIALIAS)
+        img.convert('RGB')
+        return img
+    
+    def splash_screen(self,activity_name):
+        #splash screen for spotify
+        screen = Image.new('RGB', (self.matrix.width, self.matrix.height), (0,0,0))
+        
+        if activity_name.lower() == 'spotify':
+            img = self.update_image_path('images/Spotify_icon.png', 22)
+            screen.paste(img, (5,4))
+            draw = ImageDraw.Draw(screen)
+            draw.text((30,10), "Spotify", fill='white', font=self.font)
+
+        if activity_name.lower() == 'crunchyroll':
+            img = self.update_image_path('images/crunchyroll.png', 15)
+            screen.paste(img, (2,6))
+            draw = ImageDraw.Draw(screen)
+            draw.text((20,10), "Crunchyroll", fill='white', font=self.font)
+        
+        self.matrix.SetImage(screen)
