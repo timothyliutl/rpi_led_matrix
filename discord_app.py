@@ -31,7 +31,7 @@ class DiscordClient(discord.Client):
         self.current_activity = None
         self.bot = commands.Bot(command_prefix="!", intents=intents)
         self.screens = ['spotify', 'crunchyroll', 'clock']
-        self.active_flag = False
+        self.active_flag = True
         self.activity_data = {}
 
         self.t1 = threading.Thread(target=self.update_display)
@@ -58,10 +58,14 @@ class DiscordClient(discord.Client):
                 album_cover_url = act.album_cover_url
                 self.activity_data['spotify'] = {'song_name':song_name,
                                                  'song_artist': song_artist,
-                                                 'album_cover_url': album_cover_url}
-            elif act.name == 'Crunchyroll':
+                                                 'album_cover_url': album_cover_url,
+                                                 "start": act.start,
+                                                 "end": act.end}
+            elif act.name.lower() == 'crunchyroll':
                 self.activity_data['crunchyroll'] = {
                     "show_name":act.details,
+                    "image_url": act.large_image_url,
+                    "timestamps": act.timestamps
                     #TODO: figure out how to get anime image url from this
                 }
                 
@@ -123,9 +127,6 @@ class DiscordClient(discord.Client):
         print("Bot Ready")
 
     async def on_presence_update(self, before, after):
-        for act in after.activities:
-            print(act)
-
 
         if after.activities and self.active_flag and after.id ==int(user_id):
             activities = after.activities
