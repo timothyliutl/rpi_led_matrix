@@ -32,6 +32,7 @@ class MatrixClass():
         self.artist_name = None
         self.animation_count_artist = 0
         self.animation_count_song=0
+        self.image_data = None
 
 
 
@@ -41,16 +42,17 @@ class MatrixClass():
         self.song_name = song_name
         self.animation_count_artist = 0
         self.animation_count_song = 0
+        self.image_data = self.update_image(album_img_url)
 
     def update_spotify_display(self):
 
-        if self.album_img_url==None or self.song_name == None or self.artist_name == None:
+        if self.album_img_url==None or self.song_name == None or self.artist_name == None or self.image_data == None:
             pass 
         else:
             spacer = "   "
             frame = Image.new("RGB", (self.matrix.width, self.matrix.height), (0,0,0))
             frame_text = Image.new("RGB", (32, 32), (0,0,0))
-            img = self.update_image(self.album_img_url)
+            img = self.image_data
             draw = ImageDraw.Draw(frame_text)
             
             if len(self.song_name)>7:
