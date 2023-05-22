@@ -48,7 +48,8 @@ class DiscordClient(discord.Client):
                         self.led_matrix.update_spotify_display() 
                         time.sleep(0.2)
                     if self.current_activity == 'crunchyroll':
-                        pass
+                        self.led_matrix.update_crunchyroll_display()
+                        time.sleep(0.2)
     
     def update_activity_data(self,activities):
         for act in activities:
@@ -65,8 +66,9 @@ class DiscordClient(discord.Client):
                 self.activity_data['crunchyroll'] = {
                     "show_name":act.details,
                     "image_url": act.large_image_url,
-                    "timestamps": act.timestamps
-                    #TODO: figure out how to get anime image url from this
+                    "timestamps": act.timestamps,
+                    "episode_name": act.state,
+                    "season_episode": act.to_dict()['assets']['large_text']
                 }
                 
                 
@@ -133,12 +135,22 @@ class DiscordClient(discord.Client):
             self.update_activity_data(activities)
 
 
-        if self.active_flag and self.current_activity == 'spotify' and 'spotify' in self.activity_data.keys():
-            self.lock.acquire()
-            self.led_matrix.update_song(self.activity_data['spotify']['album_cover_url'],
-                                         self.activity_data['spotify']['song_name'], 
-                                         self.activity_data['spotify']['song_artist'])
-            self.lock.release()
+        if self.active_flag:
+            if self.current_activity == 'spotify' and 'spotify' in self.activity_data.keys():
+                self.lock.acquire()
+                self.led_matrix.update_song(self.activity_data['spotify']['album_cover_url'],
+                                            self.activity_data['spotify']['song_name'], 
+                                            self.activity_data['spotify']['song_artist'])
+                self.lock.release()
+
+            if self.current_activity == 'crunchyroll' and 'crunchyroll' in self.activity_data.keys():
+                self.lock.acquire()
+                self.led_matrix.update_crunchyroll(self.activity_data['crunchyroll'])
+                self.lock.release()
+                
+
+        
+
     
 class_client = DiscordClient(intents=intents)
 class_client.run(token)
