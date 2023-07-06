@@ -70,6 +70,31 @@ class DiscordClient(discord.Client):
                     "episode_name": act.state,
                     "season_episode": act.to_dict()['assets']['large_text']
                 }
+
+    def update_display_data(self):
+
+        user = self.get_user(int(user_id))
+        if not user:
+            return
+
+        mutual_guild = self.get_guild(user.mutual_guilds[0].id)
+        member = mutual_guild.get_member(int(user_id))
+        activities = member.activities
+        self.update_activity_data(activities)
+
+
+        if self.active_flag:
+            if self.current_activity == 'spotify' and 'spotify' in self.activity_data.keys():
+                self.lock.acquire()
+                self.led_matrix.update_song(self.activity_data['spotify']['album_cover_url'],
+                                            self.activity_data['spotify']['song_name'], 
+                                            self.activity_data['spotify']['song_artist'])
+                self.lock.release()
+
+            if self.current_activity == 'crunchyroll' and 'crunchyroll' in self.activity_data.keys():
+                self.lock.acquire()
+                self.led_matrix.update_crunchyroll(self.activity_data['crunchyroll'])
+                self.lock.release()
                 
                 
     #decorator functions
@@ -108,6 +133,7 @@ class DiscordClient(discord.Client):
                 self.active_flag = not self.active_flag
                 self.led_matrix.turn_off_display()
                 self.lock.release()
+                self.update_display_data()
 
             elif str(message_content).lower() == 'crunchyroll':
                 await message.channel.send("Setting Screen to Crunchyroll")
@@ -127,10 +153,6 @@ class DiscordClient(discord.Client):
             
 
     async def on_ready(self):
-        user = await self.fetch_user(user_id)
-        mutual_guild = await self.fetch_guild(user.mutual_guilds[0].id)
-        member = await mutual_guild.fetch_member(user_id)
-        print(member.activity)
         print("Bot Ready")
         
         
