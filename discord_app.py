@@ -97,6 +97,7 @@ class DiscordClient(discord.Client):
 
             #yeah i know i could have used case and switch but whatever
             elif str(message_content).lower() == 'spotify':
+
                 await message.channel.send("Setting Screen to Spotify")
                 
                 self.lock.acquire()
@@ -126,7 +127,13 @@ class DiscordClient(discord.Client):
             
 
     async def on_ready(self):
+        user = await self.fetch_user(user_id)
+        mutual_guild = await self.fetch_guild(user.mutual_guilds[0].id)
+        member = await mutual_guild.fetch_member(user_id)
+        print(member.activity)
         print("Bot Ready")
+        
+        
 
     async def on_presence_update(self, before, after):
 
